@@ -39,8 +39,13 @@ class Race(models.Model):
     name = models.CharField(max_length=100, help_text="ex. Pack 1234 2013")
     type = models.CharField(max_length=20, choices=RACE_CHOICES)
     lanes = models.IntegerField(default=3)
+    created = models.DateTimeField(auto_now_add=True)
+    finished = models.DateTimeField(null=True, blank=True)
 
     def generate_heats(self):
+        """
+        Called after each heat if returns False then complete the race.
+        """
         #TODO: create CarTime objects based on the race Choice and # of lanes
 
         return True
