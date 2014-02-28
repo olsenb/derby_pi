@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% block page-title %}{{ car }}{% endblock page-title %}
+
+{% block content %}
+    <h1>{{ car }}</h1>
+    {% thumbnail car.side_photo "300x300" as img %}
+        <img src="{{ img.url }}" />
+    {% endthumbnail %}
+{% endblock content %}

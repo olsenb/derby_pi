@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page-title %}Register Your Car{% endblock page-title %}
+{% block content %}
+    <form action="." method="post" enctype="multipart/form-data">{% csrf_token %}
+    {{ form|crispy }}
+    <input class="btn btn-primary btn-large" type="submit" value="Register"/>
+    </form>
+
+{% endblock content %}
+
+

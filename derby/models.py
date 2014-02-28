@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 
 
@@ -13,9 +14,9 @@ class Division(models.Model):
 
 
 class Car(models.Model):
+    racer = models.CharField("Racer Name", max_length=100)
     number = models.IntegerField()
-    name = models.CharField(max_length=100, blank=True)
-    racer = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=True, help_text="Car Name")
     division = models.ForeignKey(Division)
     weight = models.FloatField(default="5.0", help_text="in Ounces")
     front_photo = models.ImageField(upload_to="car/front/")
@@ -26,6 +27,8 @@ class Car(models.Model):
             return self.name
         return "%s" % self.number
 
+    def get_absolute_url(self):
+        return reverse('derby:car', kwargs={'pk': self.id})
 
 RACE_CHOICES = (
     ('single', 'Single Elimination'),

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for car in cars %}
-        <a href="{{ car.get_absolute_url }}">{{ car }}</a>
+    {% for race in races %}
+        {{ race }}
     {% endfor %}
 {% endblock content %}

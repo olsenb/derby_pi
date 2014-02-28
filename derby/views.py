@@ -5,12 +5,12 @@ from models import Car, Race
 
 class RaceList(ListView):
     model = Race
-    context_object_name = "Races"
+    context_object_name = "races"
 
 
 class RaceDetails(DetailView):
     model = Race
-    context_object_name = "Race"
+    context_object_name = "race"
 
 
 class CarList(ListView):
@@ -23,5 +23,5 @@ class CarDetail(DetailView):
     context_object_name = "car"
 
 
-class CarForm(CreateView):
+class AddCar(CreateView):
     model = Car
