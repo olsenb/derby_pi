@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
+{% block page-title %}Its Race Time{% endblock page-title %}
 {% block content %}
+    <a href="{% url "derby:car-create" %}" class="btn btn-jumbo btn-success">Car Registation</a>
     {% for race in races %}
-        {{ race }}
+        <h2><a href="{{ race.get_absolute_url }}">{{ race }}</a></h2>
     {% endfor %}
 {% endblock content %}

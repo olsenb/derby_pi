@@ -1,0 +1,12 @@
+body {
+  padding-top: 50px;
+  background: #fff url("images/check.png");
+}
+.container {
+    background: white;
+    border: 1px solid lightgray;
+}
+.btn-jumbo {
+    padding: 14px 24px;
+    font-size: 21px;
+}
