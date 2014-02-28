@@ -8,7 +8,7 @@ class RaceList(ListView):
     context_object_name = "races"
 
 
-class RaceDetails(DetailView):
+class RaceDetail(DetailView):
     model = Race
     context_object_name = "race"
 

@@ -44,29 +44,43 @@ class Race(models.Model):
     lanes = models.IntegerField(default=3)
     created = models.DateTimeField(auto_now_add=True)
     finished = models.DateTimeField(null=True, blank=True)
+    current_heat = models.IntegerField(default=1)
 
-    def generate_heats(self):
+    def get_absolute_url(self):
+        return reverse("derby:race", kwargs={'pk': self.id})
+
+    def generate_round(self):
         """
-        Called after each heat if returns False then complete the race.
+        Called after each round is completed if returns False then complete the race.
         """
         #TODO: create CarTime objects based on the race Choice and # of lanes
 
         return True
 
     def next_heat(self):
-        self.times.filter(time__isnull=True)
+        return self.times.filter(time__isnull=True)
 
     def __unicode__(self):
         return self.name
 
 
 class CarTime(models.Model):
-    heat = models.IntegerField(default=1)
-    race = models.ForeignKey(Race, related_name="times")
+    """
+    Track the car throughout the race
+    A Race contains many Rounds
+    A Round contains many Heats
+    A Heat has up to as many racers as there are lanes
+    """
     car = models.ForeignKey(Car, related_name="times")
+    race = models.ForeignKey(Race, related_name="times")
+    round = models.IntegerField(default=1)
+    heat = models.IntegerField(default=1)
     lane = models.IntegerField(default=0)
     time = models.TimeField(blank=True, null=True)
+    finish_position = models.IntegerField(null=True, blank=True)
 
+    class Meta:
+        ordering = ('round', 'heat', 'lane')
     def __unicode__(self):
         return "%s %s" % (self.car, self.time)
 
