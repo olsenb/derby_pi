@@ -3,3 +3,4 @@
 venv/
 *.sqlite3
 serve/
+.DS_Store

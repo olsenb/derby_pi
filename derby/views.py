@@ -25,3 +25,5 @@ class CarDetail(DetailView):
 
 class AddCar(CreateView):
     model = Car
+
+

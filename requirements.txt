@@ -4,3 +4,4 @@ django-admin-bootstrapped==1.6.4
 django-crispy-forms==1.4.0
 qrcode==4.0.4
 sorl-thumbnail==11.12
+pyserial
