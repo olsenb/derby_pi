@@ -1,5 +1,6 @@
 import unittest
 
+from base import RaceBase
 """
     PPN_PARMS holds magic numbers derived from the original Young and Pope
     javascript code.  In python this is represented as a big tuple indexed
@@ -217,47 +218,33 @@ class PpnException(Exception):
     pass
 
 
-class Weight(object):
-    ZERO = 0
-    LIGHT = 1
-    MEDIUM = 10
-    HEAVY = 100
-
-
 def make_array(n, init=0):
     return [init] * (n+1)
 
 
-def print_heats(heats):
-    i = 0
-    for heat in heats:
-        i += 1
-        txt = "%3d:" % i
-        for lane in heat:
-            txt += " %3d" % lane
-        print txt
-
-
-class Ppn(object):
+class Ppn(RaceBase):
     """
     Derived from the original Young and Pope javascript code.
     """
-    def __init__(self, lanes, cars):
+    WEIGHT_ZERO = 0
+    WEIGHT_LIGHT = 1
+    WEIGHT_MEDIUM = 10
+    WEIGHT_HEAVY = 100
+
+    def __init__(self, lanes, cars, rounds):
         if not (2 <= lanes <= 6):
             raise PpnException("Must have between 2 and 6 lanes")
         if not (2 <= cars <= 200):
             raise PpnException("Must have between 2 and 200 cars")
+        super(Ppn, self).__init__(lanes, cars, rounds)
 
-        # Numbers of lanes and cars
-        self.lanes = lanes
-        self.cars = cars
         self.heats = 0
-        self.rounds = 1  # Each round runs a full set of heats
+        # Each round runs a full set of heats
 
-        # Weighting factors. Use constants in the Weight class.
-        self.weight_heat_counts = 0  # Balance heat counts
-        self.weight_consecutive_heats = 0  # Avoid consecutive heats
-        self.weight_consecutive_lanes = 0  # Avoid consecutive lanes
+        # Weighting factors.
+        self.weight_heat_counts = self.WEIGHT_ZERO  # Balance heat counts
+        self.weight_consecutive_heats = self.WEIGHT_ZERO  # Avoid consecutive heats
+        self.weight_consecutive_lanes = self.WEIGHT_ZERO  # Avoid consecutive lanes
 
         # Internal variables
         self.pn = None
@@ -269,8 +256,18 @@ class Ppn(object):
         self.hp = None
         self.h2h = None
         self.sums = None
-    # Main function
+
+    def generate_heats(self, current_round):
+        heats = self.generate()
+        # a round should have as many heats as there are cars
+        if len(heats) > self.cars:
+            return self.chunks(heats, self.cars)
+        return heats
+
     def generate(self):
+        """
+        Create the PPN charts based on the lanes and cars provided.
+        """
         (max_rounds, tg) = self.get_prams()
 
         if self.rounds > len(max_rounds):
@@ -596,9 +593,9 @@ if __name__ == '__main__':
             self.check(tests)
 
         def test_07(self):
-            l = Weight.LIGHT
-            m = Weight.MEDIUM
-            h = Weight.HEAVY
+            l = Ppn.WEIGHT_LIGHT
+            m = Ppn.WEIGHT_MEDIUM
+            h = Ppn.WEIGHT_HEAVY
             tests = {
                 (6, 17, h, 0, 0): [[1, 2, 4, 6, 9, 15], [2, 3, 5, 7, 10, 16], [3, 4, 6, 8, 11, 17],
                                    [8, 9, 11, 13, 16, 5], [9, 10, 12, 14, 17, 6], [10, 11, 13, 15, 1, 7],

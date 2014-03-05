@@ -1,15 +1,20 @@
 {% extends "base.html" %}
 {% load thumbnail %}
-{% block page-title %}{{ car }}/{{ car.racer }}{% endblock page-title %}
+{% block page-title %}#{{ car.number }} {{ car.name }}{% endblock page-title %}
 
 {% block content %}
     <div class="row">
-    {% thumbnail car.side_photo "300x300" as img %}
+    {% thumbnail car.photo "300x300" as img %}
     <div class="col-sm-4 thumbnail"><img src="{{ img.url }}" /></div>
     {% endthumbnail %}
 <div class="col-sm-8">
-    <h4>#{{ car.number }} {{ car.racer }}</h4>
-    <h5>{{ car.division }}</h5>
+    <h4>#{{ car.number }} {{ car.name }}</h4>
+    <h4>Driver: {{ car.racer }}</h4>
+    <h5>Weight: {{ car.weight }}</h5>
+    <h5>Division: {{ car.division }}</h5>
+    <h5>Best Time: {{ car.best_time|default:"Super Fast" }}</h5>
+    <h5>Best Time: {{ car.best_time|default:"Too Good" }}</h5>
+    {% for badge in car.badges %}<span class="badge badge-{{ badge }}"></span>{% endfor %}
 </div>
 </div>
 {% endblock content %}

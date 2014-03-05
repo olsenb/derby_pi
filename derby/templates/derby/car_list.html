@@ -8,12 +8,13 @@
     {% for car in cars %}
     <div class="col-sm-6 col-md-4">
     <a class="thumbnail" href="{{ car.get_absolute_url }}">
-    {% thumbnail car.side_photo "300x300" as img %}
+    {% thumbnail car.photo "300x300" as img %}
         <img src="{{ img.url }}" class="img-rounded" />
     {% endthumbnail %}
     <div class="caption">
-        <h3>{{ car.racer }}</h3>
-        <p>#{{ car.number }} {{ car }}</p>
+        <h3>#{{ car.number }} {{ car }}</h3>
+        <p>{{ car.racer }}</p>
+
 
     </div>
     </a>

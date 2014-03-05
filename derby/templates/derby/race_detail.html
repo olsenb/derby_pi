@@ -1,91 +1,69 @@
 {% extends "base.html" %}
+{% load thumbnail %}
+{% block page-title %}
 
-{% block page-title %}{{ race }}{% endblock page-title %}
+
+    {{ race }}{% endblock page-title %}
 {% block content %}
-<ul class="pagination">
+    <ul class="pull-right pagination pagination-sm">
   <li class="disabled"><a href="#">Round</a></li>
   <li><a href="#">1</a></li>
-
-</ul><br/>
-<ul class="pagination pagination-sm">
   <li class="disabled"><a href="#">Heat</a></li>
-  <li><a href="#">1</a></li>
-  <li><a href="#">2</a></li>
-  <li><a href="#">3</a></li>
-  <li><a href="#">4</a></li>
-  <li><a href="#">5</a></li>
-  <li><a href="#">&raquo;</a></li>
+  <li><a href="#">{{ race.current_heat }}</a></li>
 </ul>
-
-    <div class="row">
+    <div class="clear"></div>
+     <h3 class="sub-header text-info">Now Racing</h3>
+    {% for cartime in race.now_racing %}
+    {% ifchanged cartime.heat %}{% if not forloop.first %}</div>{% endif %}<div class="row">{% endifchanged %}
         <div class="col-xs-6 col-sm-4 text-center">
-              <div class="text-muted ">Lane 1</div>
-                <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic thumbnail">
-              <h4>### Car Name</h4>
-              <span class="text-muted">Racer Name</span>
+              <div class="text-muted ">Lane {{ cartime.lane }}</div>
+            {% thumbnail cartime.car.photo "250x250" as img %}
+                <img src="{{ img.url }}" class="img-responsive img-thumbnail" alt="{{ cartime.car.name }}">
+            {% endthumbnail %}
+              <h4>{{ cartime.car }}</h4>
+              <span class="text-muted">{{ cartime.car.racer }}</span>
             </div>
-            <div class="col-xs-6 col-sm-4 text-center">
-                <div class="text-muted text-center">Lane 2</div>
-              <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic thumbnail">
-              <h4>### Car Name</h4>
-              <span class="text-muted">Racer Name</span>
-            </div>
-            <div class="col-xs-6 col-sm-4 text-center">
-                <div class="text-muted text-center">Lane 3</div>
-              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic thumbnail">
-              <h4>### Car Name</h4>
-              <span class="text-muted">Racer Name</span>
-            </div>
-          </div>
-
+    {% endfor %}
+    </div>
+    {% if race.next_heat %}
+<hr>
           <h3 class="sub-header text-info">Next Up</h3>
-                <div class="row">
+        <div class="row">
+            {% for cartime in race.next_heat %}
             <div class="col-xs-6 col-sm-4 text-center">
-              <div class="text-muted ">Lane 1</div>
-                <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic thumbnail">
-              <h5>### Car Name</h5>
-              <span class="text-muted">Racer Name</span>
-            </div>
-            <div class="col-xs-6 col-sm-4 text-center">
-                <div class="text-muted text-center">Lane 2</div>
-              <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic thumbnail">
-              <h5>### Car Name</h5>
-              <span class="text-muted">Racer Name</span>
-            </div>
-            <div class="col-xs-6 col-sm-4 text-center">
-                <div class="text-muted text-center">Lane 3</div>
-              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic thumbnail">
-              <h5>### Car Name</h5>
-              <span class="text-muted">Racer Name</span>
-            </div>
-          </div>
+              <div class="text-muted ">Lane {{ cartime.lane }}</div>
+                {% thumbnail cartime.car.photo "150x150" as img %}
+                <img src="{{ img.url }}" class="img-responsive img-thumbnail" alt="{{ cartime.car.name }}">
+            {% endthumbnail %}
 
+              <h4>{{ cartime.car }}</h4>
+              <span class="text-muted">{{ cartime.car.racer }}</span>
+            </div>
+    {% endfor %}
+        </div>
+          {%  endif %}
+<hr>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
+                  <th>Heat</th>
+                  <th>Lane 1</th>
+                  <th>Lane 2</th>
+                  <th>Lane 3</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
-                </tr>
-                <tr>
-                  <td>1,002</td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
-                </tr>
+              {%  for cartime in race.times.all %}
+                  {% ifchanged cartime.heat %}
+                      {% if not forloop.first %}</tr>{% endif %}
+                      <tr {% if cartime.heat == race.current_heat %}class="success"{% endif %}><td>{{ cartime.heat }}</td>
+                  {% endifchanged %}
+                    <td><a href="{{ cartime.car.get_absolute_url }}">{{ cartime.car }} {{ cartime.car.racer }}
+                        {% if cartime.finish_position %}<span class="badge">{{ cartime.finish_position }}</span>{% endif %}
+                    </a></td>
+              {% endfor %}
+              </tr>
               </tbody>
             </table>
           </div>
