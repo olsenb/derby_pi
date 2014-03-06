@@ -6,4 +6,6 @@
     {% for race in races %}
         <h2><a  class="text-danger" href="{{ race.get_absolute_url }}">{{ race }}</a></h2>
     {% endfor %}
+
+    <img src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl={{ view.request.build_absolute_uri|urlencode }}">
 {% endblock content %}
