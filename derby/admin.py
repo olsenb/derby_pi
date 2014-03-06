@@ -17,6 +17,7 @@ class RaceAdmin(admin.ModelAdmin):
         for race in queryset.filter(current_heat=0):
             race.generate_race()
             race.current_heat = 1
+            race.current_round = 1
             race.save()
             messages.success(request, "Started Race %s" % race)
 

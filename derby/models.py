@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -38,7 +40,7 @@ RACE_CHOICES = (
     #('single', 'Single Elimination'),
     #('double', 'Double Elimination'),
     ('ppn', 'Practically Perfect N'),
-    ('round', 'Round Robin'),
+    #('round', 'Round Robin'),
 )
 
 
@@ -46,36 +48,59 @@ class Race(models.Model):
     name = models.CharField(max_length=100, help_text="ex. Pack 1234 2013")
     type = models.CharField(max_length=20, choices=RACE_CHOICES)
     lanes = models.IntegerField(default=3)
+    rounds = models.IntegerField(default=2)
     created = models.DateTimeField(auto_now_add=True)
     finished = models.DateTimeField(null=True, blank=True)
     current_heat = models.IntegerField(default=0)
+    current_round = models.IntegerField(default=0)
 
     def get_absolute_url(self):
         return reverse("derby:race", kwargs={'pk': self.id})
 
+    def get_score_url(self):
+        return reverse("derby:race-score", kwargs={'race': self.id, 'round': self.current_round, 'heat': self.current_heat})
+
     def generate_race(self):
-        """
-        Called after each round is completed if returns False then complete the race.
-        """
-        round = 1
-        #TODO: create CarTime objects based on the race Choice and # of lanes
         if self.type == 'ppn':
             cls = Ppn
         elif self.type == 'round':
             cls = RoundRobin
         cars = list(Car.objects.all())
-        race_type = cls(self.lanes, len(cars), round)
-        heats = race_type.generate_heats(round)
-        for heat, lanes in enumerate(heats, start=1):
-            for lane, car in enumerate(lanes, start=1):
-                CarTime.objects.create(car=cars[car-1], lane=lane, race=self, round=round, heat=heat)
+        race_type = cls(self.lanes, len(cars), self.rounds)
+        rounds = race_type.generate_heats(self.rounds)
+
+        self.rounds = len(rounds)
+        self.save()
+
+        for rnd, heats in enumerate(rounds, start=1):
+            for heat, lanes in enumerate(heats, start=1):
+                for lane, car in enumerate(lanes, start=1):
+                    CarTime.objects.create(car=cars[car-1], lane=lane, race=self, round=rnd, heat=heat)
         return True
 
     def now_racing(self):
-        return self.times.filter(heat=self.current_heat)
+        return self.times.filter(heat=self.current_heat, round=self.current_round)
 
     def next_heat(self):
-        return self.times.filter(heat=self.current_heat + 1)
+        heat = self.times.filter(heat=self.current_heat + 1, round=self.current_round)
+        if not heat.count():
+            heat = self.times.filter(heat=1, round=self.current_round + 1)
+        return heat
+
+    def set_next_heat(self):
+        next_heat = self.next_heat()
+        if next_heat.exists():
+            car_time = next_heat[0]
+            self.current_round = car_time.round
+            self.current_heat = car_time.heat
+            self.save()
+            return True
+        else:
+            self.finished = datetime.datetime.now()
+            self.current_heat = 0
+            self.current_round = 0
+            self.save()
+            return False
 
     def __unicode__(self):
         return self.name
@@ -95,6 +120,9 @@ class CarTime(models.Model):
     lane = models.IntegerField(default=0)
     time = models.TimeField(blank=True, null=True)
     finish_position = models.IntegerField(null=True, blank=True)
+
+    def get_score_url(self):
+        return reverse("derby:race-score", kwargs={'race': self.race_id, 'round': self.round, 'heat': self.heat})
 
     class Meta:
         ordering = ('round', 'heat', 'lane')

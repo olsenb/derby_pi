@@ -5,12 +5,17 @@
 
     {{ race }}{% endblock page-title %}
 {% block content %}
+    {{ request }}
+    {% if view.request.user.is_authenticated %}
+        <a class="btn btn-success pull-right" href="{{ race.get_score_url }}">Score</a>
+    {% else %}
     <ul class="pull-right pagination pagination-sm">
   <li class="disabled"><a href="#">Round</a></li>
   <li><a href="#">1</a></li>
   <li class="disabled"><a href="#">Heat</a></li>
   <li><a href="#">{{ race.current_heat }}</a></li>
 </ul>
+    {% endif %}
     <div class="clear"></div>
      <h3 class="sub-header text-info">Now Racing</h3>
     {% for cartime in race.now_racing %}
@@ -47,7 +52,7 @@
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>Heat</th>
+                 <th>Round - Heat</th>
                   <th>Lane 1</th>
                   <th>Lane 2</th>
                   <th>Lane 3</th>
@@ -57,7 +62,9 @@
               {%  for cartime in race.times.all %}
                   {% ifchanged cartime.heat %}
                       {% if not forloop.first %}</tr>{% endif %}
-                      <tr {% if cartime.heat == race.current_heat %}class="success"{% endif %}><td>{{ cartime.heat }}</td>
+                      <tr {% if cartime.heat == race.current_heat and cartime.round == race.current_round %}class="success"{% endif %}>
+                      <td> {% if view.request.user.is_authenticated %}
+        <a class="btn btn-success btn-sm" href="{{ cartime.get_score_url }}">{{ cartime.round }} - {{ cartime.heat }}</a>{% else %}{{ cartime.round }} - {{ cartime.heat }}{% endif %}</td>
                   {% endifchanged %}
                     <td><a href="{{ cartime.car.get_absolute_url }}">{{ cartime.car }} {{ cartime.car.racer }}
                         {% if cartime.finish_position %}<span class="badge">{{ cartime.finish_position }}</span>{% endif %}

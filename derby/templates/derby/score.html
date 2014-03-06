@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load crispy_forms_tags %}
+{% block page-title %}
+
+
+    {{ race }}{% endblock page-title %}
+{% block content %}
+    <form method="post" action=".">{% csrf_token %}
+    {{ form.management_form }}
+    <div class="row">
+    {% for score in form %}
+        <div class="col-xs-6 col-sm-4">
+        {% with score.instance as cartime %}
+            Lane: {{ cartime.lane }} {{ cartime.car }}
+        {{ score|crispy }}
+        {% endwith %}
+        </div>
+    {% endfor %}
+    </div>
+
+    <input class=" btn btn-success" type="Submit" value="Save Scores"/>
+    </form>
+{% endblock content %}

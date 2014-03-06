@@ -1,4 +1,5 @@
 {% load static %}
+{% load race_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,11 +29,17 @@
           </div>
           <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav navbar-right">
-                  <li><a href="#">Race</a></li>
+                  {% get_races as races %}
+
+                    {% if races.count == 1 %}
+                        <li><a href="{{ races.0.get_absolute_url }}">Race</a></li>
+                        {% else %}
+                        <li class="dropdown"></li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Race <b class="caret"></b></a>
+                  <ul class="dropdown-menu">{% for rc in races %}<li><a href="{{ rc.get_absolute_url }}">{{ rc }}</a></li>{% endfor %}</ul></li>
+                  {% endif %}
                   <li><a href="{% url "derby:cars" %}">Cars</a></li>
-                  <li><a href="#">Stats</a></li>
                   <li><a href="{% url "derby:car-create" %}">Join</a></li>
-                  <li><a href="#">Help</a></li>
               </ul>
           </div>
       </div>

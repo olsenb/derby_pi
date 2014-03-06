@@ -1,7 +1,8 @@
+from django.http import HttpResponseRedirect
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView
 from django.views.generic.edit import FormMixin
 from django import forms
-from models import Car, Race
+from models import Car, Race, CarTime
 
 
 class RaceList(ListView):
@@ -9,8 +10,28 @@ class RaceList(ListView):
     context_object_name = "races"
 
 
-class RaceManager(forms.Form):
-    pass
+CarTimeFormset = forms.models.modelformset_factory(CarTime, fields=('finish_position', 'time'), extra=0)
+
+
+class ScoreForm(FormView):
+    form_class = CarTimeFormset
+    template_name = "derby/score.html"
+
+    def get_form_kwargs(self):
+        self.race = Race.objects.get(pk=self.kwargs.get('race'))
+
+        kwargs = super(ScoreForm, self).get_form_kwargs()
+        kwargs['queryset'] = CarTime.objects.filter(
+            race=self.race,
+            round=self.kwargs.get('round'),
+            heat=self.kwargs.get('heat'))
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        if self.race.current_round == self.kwargs.get('round') and self.race.current_heat == self.kwargs.get('heat'):
+            self.race.set_next_heat()
+        return HttpResponseRedirect(self.race.get_absolute_url())
 
 
 class RaceDetail(DetailView):

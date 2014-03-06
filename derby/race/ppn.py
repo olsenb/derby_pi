@@ -260,9 +260,7 @@ class Ppn(RaceBase):
     def generate_heats(self, current_round):
         heats = self.generate()
         # a round should have as many heats as there are cars
-        if len(heats) > self.cars:
-            return self.chunks(heats, self.cars)
-        return heats
+        return self.chunks(heats, self.cars)
 
     def generate(self):
         """
