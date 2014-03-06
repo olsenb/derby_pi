@@ -1,79 +1,97 @@
 {% extends "base.html" %}
 {% load thumbnail %}
-{% block page-title %}
+{% block page-title %}{{ race }} {%  if race.finished %}Race Results{% endif %}{% endblock page-title %}
+  {% block content %}
+    {%  if race.finished %}
+        <div class="row">
+        {% for division, cars in race.results.items %}
+            {% if forloop.first %}<div class="col-sm-6">{% endif %}
+            <h3>{{ division }}</h3>
+            <table class="table table-striped table-condensed">
+            <thead><tr><th>#</th><th>Car</th><th>Score</th></tr></thead>
+            <tbody>
+            {% for car, score in cars %}
+                <tr><td>{{ forloop.counter }}</td><td><a href="{{ car.get_absolute_url }}">{{ car }}</td><td>{{ score }}</td></tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            {% if forloop.first %}</div><div class="col-sm-6">{% endif %}
+            {% if forloop.last %}</div>{% endif %}
+        {% endfor %}
+        </div>
+    {% else %}
 
-
-    {{ race }}{% endblock page-title %}
-{% block content %}
-    {{ request }}
     {% if view.request.user.is_authenticated %}
         <a class="btn btn-success pull-right" href="{{ race.get_score_url }}">Score</a>
     {% else %}
-    <ul class="pull-right pagination pagination-sm">
-  <li class="disabled"><a href="#">Round</a></li>
-  <li><a href="#">1</a></li>
-  <li class="disabled"><a href="#">Heat</a></li>
-  <li><a href="#">{{ race.current_heat }}</a></li>
-</ul>
+        <ul class="pull-right pagination pagination-sm">
+            <li class="disabled"><a href="#">Round</a></li>
+            <li><a href="#">{{ race.current_round }}</a></li>
+            <li class="disabled"><a href="#">Heat</a></li>
+            <li><a href="#">{{ race.current_heat }}</a></li>
+        </ul>
     {% endif %}
     <div class="clear"></div>
-     <h3 class="sub-header text-info">Now Racing</h3>
+    <h3 class="sub-header text-info">Now Racing</h3>
     {% for cartime in race.now_racing %}
-    {% ifchanged cartime.heat %}{% if not forloop.first %}</div>{% endif %}<div class="row">{% endifchanged %}
+        {% ifchanged cartime.heat %}{% if not forloop.first %}</div>{% endif %}
+            <div class="row">{% endifchanged %}
         <div class="col-xs-6 col-sm-4 text-center">
-              <div class="text-muted ">Lane {{ cartime.lane }}</div>
+            <div class="text-muted ">Lane {{ cartime.lane }}</div>
             {% thumbnail cartime.car.photo "250x250" as img %}
                 <img src="{{ img.url }}" class="img-responsive img-thumbnail" alt="{{ cartime.car.name }}">
             {% endthumbnail %}
-              <h4>{{ cartime.car }}</h4>
-              <span class="text-muted">{{ cartime.car.racer }}</span>
-            </div>
+            <h4>{{ cartime.car }}</h4>
+            <span class="text-muted">{{ cartime.car.racer }}</span>
+        </div>
+        {% if forloop.last %}</div>{% endif %}
     {% endfor %}
-    </div>
     {% if race.next_heat %}
-<hr>
-          <h3 class="sub-header text-info">Next Up</h3>
+        <hr>
+        <h3 class="sub-header text-info">Next Up</h3>
         <div class="row">
             {% for cartime in race.next_heat %}
-            <div class="col-xs-6 col-sm-4 text-center">
-              <div class="text-muted ">Lane {{ cartime.lane }}</div>
-                {% thumbnail cartime.car.photo "150x150" as img %}
-                <img src="{{ img.url }}" class="img-responsive img-thumbnail" alt="{{ cartime.car.name }}">
-            {% endthumbnail %}
+                <div class="col-xs-6 col-sm-4 text-center">
+                    <div class="text-muted ">Lane {{ cartime.lane }}</div>
+                    {% thumbnail cartime.car.photo "150x150" as img %}
+                        <img src="{{ img.url }}" class="img-responsive img-thumbnail" alt="{{ cartime.car.name }}">
+                    {% endthumbnail %}
 
-              <h4>{{ cartime.car }}</h4>
-              <span class="text-muted">{{ cartime.car.racer }}</span>
-            </div>
-    {% endfor %}
+                    <h4>{{ cartime.car }}</h4>
+                    <span class="text-muted">{{ cartime.car.racer }}</span>
+                </div>
+            {% endfor %}
         </div>
-          {%  endif %}
-<hr>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                 <th>Round - Heat</th>
-                  <th>Lane 1</th>
-                  <th>Lane 2</th>
-                  <th>Lane 3</th>
-                </tr>
-              </thead>
-              <tbody>
-              {%  for cartime in race.times.all %}
-                  {% ifchanged cartime.heat %}
-                      {% if not forloop.first %}</tr>{% endif %}
-                      <tr {% if cartime.heat == race.current_heat and cartime.round == race.current_round %}class="success"{% endif %}>
-                      <td> {% if view.request.user.is_authenticated %}
-        <a class="btn btn-success btn-sm" href="{{ cartime.get_score_url }}">{{ cartime.round }} - {{ cartime.heat }}</a>{% else %}{{ cartime.round }} - {{ cartime.heat }}{% endif %}</td>
-                  {% endifchanged %}
-                    <td><a href="{{ cartime.car.get_absolute_url }}">{{ cartime.car }} {{ cartime.car.racer }}
-                        {% if cartime.finish_position %}<span class="badge">{{ cartime.finish_position }}</span>{% endif %}
-                    </a></td>
-              {% endfor %}
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+    {% endif %}
+    {% endif %}
+    <hr>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Round - Heat</th>
+                <th>Lane 1</th>
+                <th>Lane 2</th>
+                <th>Lane 3</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for cartime in race.times.all %}
+                {% ifchanged cartime.heat %}
+                    {% if not forloop.first %}</tr>{% endif %}
+                    <tr {% if cartime.heat == race.current_heat and cartime.round == race.current_round %}class="success"{% endif %}>
+                    <td> {% if view.request.user.is_authenticated %}
+                        <a class="btn btn-success btn-sm" href="{{ cartime.get_score_url }}">{{ cartime.round }}
+                            - {{ cartime.heat }}</a>{% else %}{{ cartime.round }} - {{ cartime.heat }}{% endif %}</td>
+                {% endifchanged %}
+                <td><a href="{{ cartime.car.get_absolute_url }}">{{ cartime.car }} {{ cartime.car.racer }}
+                    {% if cartime.finish_position %}<span class="badge">{{ cartime.finish_position }}</span>{% endif %}
+                </a></td>
+            {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+    </div>
 {% endblock content %}

@@ -29,7 +29,7 @@ class ScoreForm(FormView):
 
     def form_valid(self, form):
         form.save()
-        if self.race.current_round == self.kwargs.get('round') and self.race.current_heat == self.kwargs.get('heat'):
+        if self.race.current_round == int(self.kwargs.get('round')) and self.race.current_heat == int(self.kwargs.get('heat')):
             self.race.set_next_heat()
         return HttpResponseRedirect(self.race.get_absolute_url())
 

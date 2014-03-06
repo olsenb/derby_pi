@@ -2,6 +2,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.datastructures import SortedDict
 
 from race import Ppn, RoundRobin
 
@@ -82,6 +83,8 @@ class Race(models.Model):
         return self.times.filter(heat=self.current_heat, round=self.current_round)
 
     def next_heat(self):
+        if self.finished:
+            return False
         heat = self.times.filter(heat=self.current_heat + 1, round=self.current_round)
         if not heat.count():
             heat = self.times.filter(heat=1, round=self.current_round + 1)
@@ -101,6 +104,24 @@ class Race(models.Model):
             self.current_round = 0
             self.save()
             return False
+
+    def results(self):
+        totals = {}
+        if self.finished:
+            for cartime in self.times.filter(finish_position__gt=0):
+                score = max(self.lanes+1 - cartime.finish_position, 0)
+                if cartime.car not in totals:
+                    totals[cartime.car] = 0
+                totals[cartime.car] += score
+            results = sorted(totals.items(), key=lambda x: x[1], reverse=True)
+            divisions = SortedDict({'Overall': results})
+            for d in Division.objects.all():
+                divisions[d] = []
+            for car, score in results:
+                divisions[car.division].append((car, score))
+
+            return divisions
+        return False
 
     def __unicode__(self):
         return self.name
