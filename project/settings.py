@@ -134,4 +134,4 @@ LOGGING = {
         },
     }
 }
-print MEDIA_ROOT, STATIC_ROOT, MEDIA_URL
+
