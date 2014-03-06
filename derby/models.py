@@ -160,11 +160,14 @@ class Awards(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class CarAwards(models.Model):
     car = models.ForeignKey(Car)
     award = models.ForeignKey(Awards)
 
     class Meta:
         verbose_name_plural = "Car Awards"
+        ordering = ('car__number',)
+
     def __unicode__(self):
         return "%s %s" % (self.car, self.award)

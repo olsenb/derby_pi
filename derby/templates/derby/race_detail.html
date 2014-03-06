@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load thumbnail %}
+{% load race_tags %}
+
 {% block page-title %}{{ race }} {%  if race.finished %}Race Results{% endif %}{% endblock page-title %}
   {% block content %}
     {%  if race.finished %}
@@ -19,9 +21,17 @@
             {% if forloop.last %}</div>{% endif %}
         {% endfor %}
         </div>
+        <h2>Awards</h2>
+        {% get_awards as awards%}
+        <table class="table table-striped table-condensed">
+        {% for award in  awards %}
+            <tr><td>{{ award.award }}</td><td>{{ award.car }} / {{ award.car.racer }}</td></tr>
+        {% endfor %}
+        </table>
+
     {% else %}
 
-    {% if view.request.user.is_authenticated %}
+    {% if view.request.user.is_authenticated and race.current_heat > 0 %}
         <a class="btn btn-success pull-right" href="{{ race.get_score_url }}">Score</a>
     {% else %}
         <ul class="pull-right pagination pagination-sm">
@@ -30,7 +40,7 @@
             <li class="disabled"><a href="#">Heat</a></li>
             <li><a href="#">{{ race.current_heat }}</a></li>
         </ul>
-    {% endif %}
+
     <div class="clear"></div>
     <h3 class="sub-header text-info">Now Racing</h3>
     {% for cartime in race.now_racing %}
@@ -92,6 +102,6 @@
             </tbody>
         </table>
     </div>
-    </div>
-    </div>
+      {% endif %}
+
 {% endblock content %}
