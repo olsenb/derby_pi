@@ -12,12 +12,17 @@
     <h4>Driver: {{ car.racer }}</h4>
     <h5>Weight: {{ car.weight }}</h5>
     <h5>Division: {{ car.division }}</h5>
-{% comment %}    <h5>Best Time: {{ car.best_time|default:"Super Fast" }}</h5>
-    <h5>Best Time: {{ car.best_time|default:"Too Good" }}</h5>{% endcomment %}
+   <h5>Best Time: {{ car.best_time|default:"Super Fast" }}</h5>
+    <h5>Average Time: {{ car.avg_time|default:"Too Good" }}</h5>
     {% for badge in car.badges %}<span class="badge badge-{{ badge }}"></span>{% endfor %}
     {% for award in car.carawards_set.all %}
         <h4>Awarded: {{ award.award }}</h4>
     {% endfor %}
+
+  {% for time in car.times.all %}
+    <div>{{ time.round }}-{{ time.heat }} = {{ time.finish_position }} ({{ time.time|default:"" }})
+</div>
+  {% endfor %}
 </div>
 </div>
 {% endblock content %}

@@ -34,6 +34,21 @@ class Car(models.Model):
             return "#%d %s" % (self.number, self.name)
         return "#%d" % self.number
 
+    @property
+    def races(self):
+        return Race.objects.filter(times__car=self).distinct()
+
+    @property
+    def best_time(self):
+        try:
+            return self.times.order_by('time')[0].time
+        except IndexError:
+            return None
+
+    @property
+    def avg_time(self):
+        return self.times.aggregate(t=models.Avg('time'))['t']
+
     def get_absolute_url(self):
         return reverse('derby:car', kwargs={'pk': self.id})
 
@@ -139,14 +154,14 @@ class CarTime(models.Model):
     round = models.IntegerField(default=1)
     heat = models.IntegerField(default=1)
     lane = models.IntegerField(default=0)
-    time = models.TimeField(blank=True, null=True)
+    time = models.FloatField(blank=True, null=True)
     finish_position = models.IntegerField(null=True, blank=True)
 
     def get_score_url(self):
         return reverse("derby:race-score", kwargs={'race': self.race_id, 'round': self.round, 'heat': self.heat})
 
     class Meta:
-        ordering = ('round', 'heat', 'lane')
+        ordering = ('race', 'round', 'heat', 'lane')
     def __unicode__(self):
         return "%s %s" % (self.car, self.time)
 
