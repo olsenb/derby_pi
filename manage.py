@@ -2,7 +2,7 @@
 import os
 import sys
 
-execfile('venv/bin/activate_this.py', dict(__file__='venv/bin/activate_this.py'))
+# execfile('venv/bin/activate_this.py', dict(__file__='venv/bin/activate_this.py'))
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
